@@ -13,6 +13,9 @@ int main(int argc, char **argv)
 	struct sockaddr_in address;
 	int result;
 	char ch='A';
+	FILE *fd;
+	long int offset = 0;
+	int ret;
 	
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	
@@ -21,6 +24,10 @@ int main(int argc, char **argv)
 	address.sin_port = 8080;
 	len = sizeof(address);
 
+	if (*argv ==  NULL) {
+		printf("argv == NULL, it shouldn't be\n");
+		return 0;
+	}
 	result = connect(sockfd, (struct sockaddr *)&address, len);
 
 	if (result == -1) {
@@ -28,10 +35,23 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	write(sockfd, &ch, 1);
-	printf("write: %s\n", &ch);
-	read(sockfd, &ch, 1);
-	printf("read: %s\n", &ch);
+	do {
+		char chr[16];
+		fd = fopen(argv[1], "ab+");
+		fseek(fd, offset, SEEK_SET);
+		ret = read(sockfd, chr, 16);
+		printf("ret is %d\n", ret);
+		ret = fwrite(chr, sizeof(char), ret, fd);
+		printf("write is %d\n", ret);
+		offset = ftell(fd);
+		//offset += ret;
+		printf("receive %ld KB\n", offset/1024);
+		fclose(fd);
+	} while(ret);
+	//write(sockfd, &ch, 1);
+	//printf("write: %s\n", &ch);
+	//read(sockfd, &ch, 1);
+	//printf("read: %s\n", &ch);
 	close(sockfd);
 	
 	exit(0);
