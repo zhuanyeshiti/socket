@@ -30,6 +30,7 @@ int main(int argc, char **argv)
 		printf("server waiting...\n");
 		client_len = sizeof(client_address);
 		client_sockfd = accept(server_sockfd, (struct sockaddr *)&client_address, (socklen_t *)&client_len);
+		printf("ip=%s, port=%d\n", inet_ntoa(client_address.sin_addr), ntohs(client_address.sin_port));
 		
 		do {
 			/** transfer file **/

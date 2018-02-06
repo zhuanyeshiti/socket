@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 	address.sin_port = 8080;
 	len = sizeof(address);
 
-	if (*argv ==  NULL) {
+	if (argv[1] ==  NULL) {
 		printf("argv == NULL, it shouldn't be\n");
 		return 0;
 	}
