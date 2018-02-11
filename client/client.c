@@ -16,12 +16,15 @@ int main(int argc, char **argv)
 	FILE *fd;
 	long int offset = 0;
 	int ret;
+	struct sockaddr_in client;
+	socklen_t client_len = sizeof(client);
 	
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	
 	address.sin_family = AF_INET;
+	//address.sin_addr.s_addr = inet_addr("39.106.112.82");
 	address.sin_addr.s_addr = inet_addr("127.0.0.1");
-	address.sin_port = 8080;
+	address.sin_port = htons(8080);
 	len = sizeof(address);
 
 	if (argv[1] ==  NULL) {
@@ -29,6 +32,7 @@ int main(int argc, char **argv)
 		return 0;
 	}
 	result = connect(sockfd, (struct sockaddr *)&address, len);
+	ret = getsockname(sockfd, (struct sockaddr *)&client, &client_len);
 
 	if (result == -1) {
 		printf("error\n");
@@ -52,6 +56,8 @@ int main(int argc, char **argv)
 	//printf("write: %s\n", &ch);
 	//read(sockfd, &ch, 1);
 	//printf("read: %s\n", &ch);
+	printf("ip=%s, port=%d\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port));
+	//listen(sockfd, 5);
 	close(sockfd);
 	
 	exit(0);
