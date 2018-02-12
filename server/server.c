@@ -7,8 +7,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
+#include "server.h"
 
 void *thread_func(void *arg);
+unsigned short client1_port, client2_port;
 
 int main(int argc, char **argv)
 {
@@ -79,7 +81,10 @@ void *thread_func(void *arg)
 	client_fd = *(int *)arg;
 	FILE *fd;
 	long int offsetp = 0;
-	do {
+	struct sockaddr_in peeraddr;
+	socklen_t peer_len = sizeof(peeraddr);
+	memset(ch, '\0', sizeof(ch));
+	/*do {
 		//transfer file***************************************************
 		fd = fopen("/home/allenliu/base/socket/server/woman.mkv", "rb");
 		fseek(fd, offsetp, SEEK_SET);
@@ -92,7 +97,16 @@ void *thread_func(void *arg)
 		//printf("transferred %ld KB\n", offsetp/1024);
 		fclose(fd);
 		//transfer file end***********************************************
-	} while(ret);
+	} while(ret);*/
+	//add
+	ret = getpeername(client_fd, (struct sockaddr *)&peeraddr, &peer_len);
+	client1_port = ntohs(peeraddr.sin_port);
+	ret = u2c(client1_port, ch, 16);
+	printf("%s, len=%zu\n", ch, strlen(ch));
+	//ret = write(client_fd, (char *)&client1_port, strlen((char *)&client1_port));
+	ret = write(client_fd, ch, strlen(ch));
+	//end
+
 	close(client_fd);
 
 }

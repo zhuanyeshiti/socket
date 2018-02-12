@@ -5,6 +5,8 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
+#include "client.h"
 
 int main(int argc, char **argv)
 {
@@ -12,12 +14,15 @@ int main(int argc, char **argv)
 	int len;
 	struct sockaddr_in address;
 	int result;
-	char ch='A';
+	char ch[10];
 	FILE *fd;
 	long int offset = 0;
 	int ret;
-	struct sockaddr_in client;
+	unsigned short tmp_port;
+	struct sockaddr_in client, peeraddr;
 	socklen_t client_len = sizeof(client);
+	socklen_t peer_len = sizeof(peeraddr);
+	memset(ch, '\0', 10);
 	
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	
@@ -33,13 +38,14 @@ int main(int argc, char **argv)
 	}
 	result = connect(sockfd, (struct sockaddr *)&address, len);
 	ret = getsockname(sockfd, (struct sockaddr *)&client, &client_len);
+	ret = getpeername(sockfd, (struct sockaddr *)&peeraddr, &peer_len);
 
 	if (result == -1) {
 		printf("error\n");
 		exit(1);
 	}
 
-	do {
+	/*do {
 		char chr[16];
 		fd = fopen(argv[1], "ab+");
 		fseek(fd, offset, SEEK_SET);
@@ -51,12 +57,17 @@ int main(int argc, char **argv)
 		//offset += ret;
 		printf("receive %ld KB\n", offset/1024);
 		fclose(fd);
-	} while(ret);
+	} while(ret);*/
+
 	//write(sockfd, &ch, 1);
 	//printf("write: %s\n", &ch);
-	//read(sockfd, &ch, 1);
-	//printf("read: %s\n", &ch);
-	printf("ip=%s, port=%d\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port));
+	read(sockfd, ch, 10);
+	tmp_port = c2u(ntohs(client.sin_port), ch, 10);
+	printf("read: %s, %u\n", ch, tmp_port);
+
+	printf("client: ip=%s, port=%d\n", inet_ntoa(client.sin_addr), ntohs(client.sin_port));
+	printf("address: ip=%s, port=%d\n", inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+	printf("peer: ip=%s, port=%d\n", inet_ntoa(peeraddr.sin_addr), ntohs(peeraddr.sin_port));
 	//listen(sockfd, 5);
 	close(sockfd);
 	
