@@ -73,17 +73,24 @@ int main(int argc, char **argv)
 	}
 }
 
+int first = 0;
 void *thread_func(void *arg)
 {
 	int client_fd;
 	int ret;
 	char ch[16];
+	char *tmp_ch;
 	client_fd = *(int *)arg;
 	FILE *fd;
 	long int offsetp = 0;
 	struct sockaddr_in peeraddr;
 	socklen_t peer_len = sizeof(peeraddr);
 	memset(ch, '\0', sizeof(ch));
+	if (first) {
+		first = 0;
+	} else {
+		first = 1;
+	}
 	/*do {
 		//transfer file***************************************************
 		fd = fopen("/home/allenliu/base/socket/server/woman.mkv", "rb");
@@ -105,6 +112,13 @@ void *thread_func(void *arg)
 	printf("%s, len=%zu\n", ch, strlen(ch));
 	//ret = write(client_fd, (char *)&client1_port, strlen((char *)&client1_port));
 	ret = write(client_fd, ch, strlen(ch));
+	sleep(0.1);
+	if (first) {
+		tmp_ch = "hello";
+	} else {
+		tmp_ch = "world";
+	}
+	ret = write(client_fd, tmp_ch, strlen(tmp_ch));
 	//end
 
 	close(client_fd);
