@@ -120,12 +120,19 @@ int main(int argc, char **argv)
 		ret = read(client2_fd, ch, 10);
 		printf("2: %s, %d bytes\n", ch, ret);
 	} else if (strcmp(ch, "world") == 0) {
-		c_len = sizeof(client_address);
+		struct sockaddr_in client3_addr;
 		client_fd = socket(AF_INET, SOCK_STREAM, 0);
+		c_len = sizeof(client3_addr);
+		client3_addr.sin_family = AF_INET;
+		client3_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+		client3_addr.sin_port = htons(tmp_port);
+		//client3_addr.sin_port = htons(9090);
+		ret = bind(client_fd, (struct sockaddr *)&client3_addr, c_len);
 		client_address.sin_family = AF_INET;
 		client_address.sin_addr.s_addr = inet_addr("127.0.0.1");
 		client_address.sin_port = htons(tmp_port - 2);
 		//client_address.sin_port = htons(9090);
+		c_len = sizeof(client_address);
 		ret = connect(client_fd, (struct sockaddr *)&client_address, c_len);
 		if (ret) {
 			printf("connect2 error, ret=%d\n", ret);
